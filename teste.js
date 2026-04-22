@@ -102,9 +102,11 @@ class LinkedList {
     return removed;
   }
 
-  getSize() {} // wendrio
+  getSize() { //tamanho da lista
+    return this.size;
+  }
 
-  insertAt(value, index) {}
+  insertAt(value, index) { } // wendrio
 
   getAt(index) {
     if (index < 0 || index > this.size - 1) {
@@ -122,7 +124,23 @@ class LinkedList {
     return currentNode.value;
   }
 
-  reverse() {} // wendrio
+  reverse() { //inverte a ordem 
+    let anterior = null;
+    let atual = this.head;
+    let proximo = null;
 
-  clear() {}
+    while (atual !== null) {
+      proximo = atual.next;
+      atual.next = anterior;
+      anterior = atual;
+      atual = proximo;
+    }
+
+    this.head = anterior;
+  }
+
+  clear() { //limpa toda a lista 
+    this.head = null;
+    this.size = 0;
+  }
 }
