@@ -15,6 +15,7 @@ class LinkedList {
     const node = new Node(value);
     if (this.head === null) {
       this.head = node;
+      this.size++;
       return;
     }
 
@@ -106,7 +107,33 @@ class LinkedList {
     return this.size;
   }
 
-  insertAt(value, index) { } // wendrio
+  insertAt(value, index) {
+  if (index < 0 || index > this.size) {
+    return null;
+  }
+
+  const node = new Node(value);
+
+  if (index === 0) {
+    node.next = this.head;
+    this.head = node;
+    this.size++;
+    return value;
+  }
+
+  let current = this.head;
+  let i = 0;
+
+  while (i < index - 1) {
+    current = current.next;
+    i++;
+  }
+
+  node.next = current.next;
+  current.next = node;
+  this.size++;
+  return value;
+} // wendrio
 
   getAt(index) {
     if (index < 0 || index > this.size - 1) {
