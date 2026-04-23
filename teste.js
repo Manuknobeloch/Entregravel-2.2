@@ -12,6 +12,7 @@ class LinkedList {
   }
 
   add(value) {
+    // Adiciona no final
     const node = new Node(value);
     if (this.head === null) {
       this.head = node;
@@ -30,6 +31,7 @@ class LinkedList {
   }
 
   pop() {
+    // Deleta o ultimo
     if (this.head === null) {
       return null;
     }
@@ -52,6 +54,7 @@ class LinkedList {
   }
 
   print() {
+    //Não precisa API
     let currentNode = this.head;
     while (currentNode !== null) {
       console.log(currentNode.value);
@@ -60,6 +63,7 @@ class LinkedList {
   }
 
   toArray() {
+    //toArray
     let array = [];
 
     if (this.head === null) {
@@ -77,6 +81,7 @@ class LinkedList {
   }
 
   removeAt(index) {
+    // Deleta posição especifica
     if (index < 0 || index > this.size) {
       return null;
     }
@@ -103,39 +108,42 @@ class LinkedList {
     return removed;
   }
 
-  getSize() { //tamanho da lista
+  getSize() {
+    // Mostra tamanho da lista
     return this.size;
   }
 
   insertAt(value, index) {
-  if (index < 0 || index > this.size) {
-    return null;
-  }
+    // Adiciona na posição especifica
+    if (index < 0 || index > this.size) {
+      return null;
+    }
 
-  const node = new Node(value);
+    const node = new Node(value);
 
-  if (index === 0) {
-    node.next = this.head;
-    this.head = node;
+    if (index === 0) {
+      node.next = this.head;
+      this.head = node;
+      this.size++;
+      return value;
+    }
+
+    let current = this.head;
+    let i = 0;
+
+    while (i < index - 1) {
+      current = current.next;
+      i++;
+    }
+
+    node.next = current.next;
+    current.next = node;
     this.size++;
     return value;
   }
 
-  let current = this.head;
-  let i = 0;
-
-  while (i < index - 1) {
-    current = current.next;
-    i++;
-  }
-
-  node.next = current.next;
-  current.next = node;
-  this.size++;
-  return value;
-} // wendrio
-
   getAt(index) {
+    // Mostra valor especifico
     if (index < 0 || index > this.size - 1) {
       return null;
     }
@@ -151,7 +159,8 @@ class LinkedList {
     return currentNode.value;
   }
 
-  reverse() { //inverte a ordem 
+  reverse() {
+    //Reverse
     let anterior = null;
     let atual = this.head;
     let proximo = null;
@@ -166,8 +175,83 @@ class LinkedList {
     this.head = anterior;
   }
 
-  clear() { //limpa toda a lista 
+  clear() {
+    // limpar lista
     this.head = null;
     this.size = 0;
   }
 }
+
+// API
+
+// Adiciona no final
+app.post("/lista", (req, res) => {
+  const { value } = req.body;
+  list.add(value);
+  res.status(201).json({ message: "Adicionado", list: list.toArray() });
+});
+
+// Adiciona em posição especifica
+app.post("/lista/index", (req, res) => {
+  const { value, index } = req.body;
+  const result = list.insertAt(value, index);
+
+  if (result === null)
+    return res.status(422).json({ error: "Índice inválido" });
+
+  res.status(200).json({ list: list.toArray() });
+});
+
+// Deleta o ultimo
+app.delete("lista", (req, res) => {
+  const removed = list.pop();
+  if (removed === null)
+    return res.status(404).json({ error: "Dados não encontrados" });
+
+  res.status(200).json({ removed, list: list.toArray() });
+});
+
+// Deleta posição especifica
+app.delete("lista/:index", (req, res) => {
+  const removed = list.removeAt(Number(req.params.index));
+
+  if (removed === null)
+    return res.status(404).json({ error: "Dados não encontrados" });
+
+  res.status(200).json({ removed, list: list.toArray() });
+});
+
+// Tamanho da lista
+app.get("/lista/size", (req, res) => {
+  const size = list.getSize();
+  res.json({ size });
+});
+
+// Mostra valor especifico
+app.get("/list/:index", (req, res) => {
+  const value = list.getAt(Number(req.params.index));
+  if (value === null) return res.status(404).json({ error: "Não encontrado" });
+  res.json({ value });
+});
+
+// Limpar lista
+app.delete("/list/clear", (req, res) => {
+  list.clear();
+  res.json({ message: "Lista limpa" });
+});
+
+// Reverse
+app.post("/reverse", (req, res) => {
+  lista.reverse();
+
+  res.json({
+    mensagem: "Lista invertida",
+    lista: lista.toArray(),
+  });
+});
+
+// ToArray
+app.get("/list", (req, res) => {
+  res.json(lista.toArray());
+});
+
