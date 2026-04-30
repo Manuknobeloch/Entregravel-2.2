@@ -1,3 +1,9 @@
+const express = require("express");
+const app = express();
+app.use(express.json());
+
+const port = 8080;
+
 class Node {
   constructor(value) {
     this.value = value;
@@ -10,6 +16,8 @@ class LinkedList {
     this.head = null;
     this.size = 0;
   }
+
+  
 
   add(value) {
     // Adiciona no final
@@ -27,7 +35,6 @@ class LinkedList {
 
     currentNode.next = node;
     this.size++;
-    return value;
   }
 
   pop() {
@@ -39,7 +46,7 @@ class LinkedList {
     if (this.head.next === null) {
       this.head = null;
       this.size = 0;
-      return null;
+      return removedValue;
     }
 
     let currentNode = this.head;
@@ -82,7 +89,7 @@ class LinkedList {
 
   removeAt(index) {
     // Deleta posição especifica
-    if (index < 0 || index > this.size) {
+    if (index < 0 || index >= this.size) {
       return null;
     }
 
@@ -142,6 +149,7 @@ class LinkedList {
     return value;
   }
 
+
   getAt(index) {
     // Mostra valor especifico
     if (index < 0 || index > this.size - 1) {
@@ -182,17 +190,19 @@ class LinkedList {
   }
 }
 
+const list = new LinkedList();
+
 // API
 
 // Adiciona no final
-app.post("/lista", (req, res) => {
+app.post("/adicionar", (req, res) => {
   const { value } = req.body;
   list.add(value);
   res.status(201).json({ message: "Adicionado", list: list.toArray() });
 });
 
 // Adiciona em posição especifica
-app.post("/lista/index", (req, res) => {
+app.post("/adicionar/indice", (req, res) => {
   const { value, index } = req.body;
   const result = list.insertAt(value, index);
 
@@ -203,7 +213,7 @@ app.post("/lista/index", (req, res) => {
 });
 
 // Deleta o ultimo
-app.delete("lista", (req, res) => {
+app.delete("/apagarUltimo", (req, res) => {
   const removed = list.pop();
   if (removed === null)
     return res.status(404).json({ error: "Dados não encontrados" });
@@ -212,7 +222,7 @@ app.delete("lista", (req, res) => {
 });
 
 // Deleta posição especifica
-app.delete("lista/:index", (req, res) => {
+app.delete("/apagar/:index", (req, res) => {
   const removed = list.removeAt(Number(req.params.index));
 
   if (removed === null)
@@ -222,36 +232,40 @@ app.delete("lista/:index", (req, res) => {
 });
 
 // Tamanho da lista
-app.get("/lista/size", (req, res) => {
+app.get("/tamanhoLista", (req, res) => {
   const size = list.getSize();
   res.json({ size });
 });
 
 // Mostra valor especifico
-app.get("/list/:index", (req, res) => {
+app.get("/mostrar/:index", (req, res) => {
   const value = list.getAt(Number(req.params.index));
   if (value === null) return res.status(404).json({ error: "Não encontrado" });
   res.json({ value });
 });
 
 // Limpar lista
-app.delete("/list/clear", (req, res) => {
+app.delete("/limparLista", (req, res) => {
   list.clear();
   res.json({ message: "Lista limpa" });
 });
 
 // Reverse
-app.post("/reverse", (req, res) => {
-  lista.reverse();
+app.post("/reverter", (req, res) => {
+  list.reverse();
 
   res.json({
     mensagem: "Lista invertida",
-    lista: lista.toArray(),
+    lista: list.toArray(),
   });
 });
 
 // ToArray
-app.get("/list", (req, res) => {
-  res.json(lista.toArray());
+app.get("/mostrar", (req, res) => {
+  res.json(list.toArray());
 });
 
+
+app.listen(port, () =>
+console.log(Server running at http://localhost:${port}  ),
+  );
