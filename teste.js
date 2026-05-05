@@ -17,7 +17,7 @@ class LinkedList {
     this.size = 0;
   }
 
-  
+
 
   add(value) {
     // Adiciona no final
@@ -44,6 +44,7 @@ class LinkedList {
     }
 
     if (this.head.next === null) {
+      const removedValue = this.head.value;
       this.head = null;
       this.size = 0;
       return removedValue;
@@ -192,33 +193,63 @@ class LinkedList {
 
 const list = new LinkedList();
 
-// API
+/// API
+
+//substitui a lista
+app.put("/adicionar", (req, res) => {
+  const { value } = req.body;
+
+  // sobrescreve a lista com o novo valor
+  list.clear();
+  list.add(value);
+
+  res.status(200).json({
+    message: "Lista atualizada",
+    list: list.toArray(),
+  });
+})
 
 // Adiciona no final
 app.post("/adicionar", (req, res) => {
   const { value } = req.body;
+
   list.add(value);
-  res.status(201).json({ message: "Adicionado", list: list.toArray() });
+
+  res.status(201).json({
+    message: "Adicionado",
+    list: list.toArray(),
+  });
 });
 
 // Adiciona em posição especifica
-app.post("/adicionar/indice", (req, res) => {
-  const { value, index } = req.body;
-  const result = list.insertAt(value, index);
+app.patch("/atualizar/:index", (req, res) => {
+  const index = Number(req.params.index);
+  const { value } = req.body;
 
-  if (result === null)
-    return res.status(422).json({ error: "Índice inválido" });
+  if (index < 0 || index >= list.getSize()) {
+    return res.status(409).json({ error: "Índice inválido" });
+  }
 
-  res.status(200).json({ list: list.toArray() });
+  list.removeAt(index);
+  list.insertAt(value, index);
+
+  res.status(200).json({
+    message: "Atualizado",
+    list: list.toArray(),
+  });
 });
 
 // Deleta o ultimo
 app.delete("/apagarUltimo", (req, res) => {
   const removed = list.pop();
+
   if (removed === null)
     return res.status(404).json({ error: "Dados não encontrados" });
 
-  res.status(200).json({ removed, list: list.toArray() });
+  res.status(200).json({
+    removed,
+    list: list.toArray(),
+  });
 });
 
 // Deleta posição especifica
@@ -228,25 +259,33 @@ app.delete("/apagar/:index", (req, res) => {
   if (removed === null)
     return res.status(404).json({ error: "Dados não encontrados" });
 
-  res.status(200).json({ removed, list: list.toArray() });
+  res.status(200).json({
+    removed,
+    list: list.toArray(),
+  });
 });
 
 // Tamanho da lista
 app.get("/tamanhoLista", (req, res) => {
   const size = list.getSize();
+
   res.json({ size });
 });
 
 // Mostra valor especifico
 app.get("/mostrar/:index", (req, res) => {
   const value = list.getAt(Number(req.params.index));
-  if (value === null) return res.status(404).json({ error: "Não encontrado" });
+
+  if (value === null)
+    return res.status(404).json({ error: "Não encontrado" });
+
   res.json({ value });
 });
 
 // Limpar lista
 app.delete("/limparLista", (req, res) => {
   list.clear();
+
   res.json({ message: "Lista limpa" });
 });
 
@@ -264,8 +303,6 @@ app.post("/reverter", (req, res) => {
 app.get("/mostrar", (req, res) => {
   res.json(list.toArray());
 });
-
-
 app.listen(port, () =>
   console.log(`Server running at http://localhost:${port}`)
 );
